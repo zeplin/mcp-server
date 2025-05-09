@@ -1,0 +1,29 @@
+{
+    "name": "zeplin-mcp-server",
+    "version": "0.1.0",
+    "description": "An MCP server for Zeplin",
+    "bin": {
+        "zeplin-mcp-server": "./dist/index.js"
+    },
+    "files": [
+        "dist"
+    ],
+    "type": "module",
+    "scripts": {
+        "dev": "tsc -w",
+        "build": "tsc",
+        "inspect": "source .env && npx @modelcontextprotocol/inspector -e ZEPLIN_ACCESS_TOKEN=$ZEPLIN_ACCESS_TOKEN node dist/index.js",
+        "prepublishOnly": "npm run build"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.10.2",
+        "@zeplin/sdk": "^1.25.0",
+        "node-fetch": "^3.3.2",
+        "zod": "^3.24.3"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "@types/node": "^22.14.1",
+        "typescript": "^5.8.3"
+    }
+}
