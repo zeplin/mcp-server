@@ -232,14 +232,19 @@ async function getComponentData(url: string) {
     const sections = sectionsResponse.data;
     const section = sections.find((s) => s.id === sectionId);
     if (!section) {
+        const response = {
+            component
+        }
         return {
             content: [
                 {
                     type: "text" as const,
-                    text: "Fetching component details failed, try again in a little while.",
+                    text: `${INSTRUCTIONS}
+
+                    Component data in JSON format:
+                    ${JSON.stringify(response, null, 2)}`,
                 },
             ],
-            isError: true,
         };
     }
 
