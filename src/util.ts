@@ -6,19 +6,17 @@ export async function resolveUrl(url: string): Promise<string> {
     }
 
     const response = await fetch(url, {
-        method: "HEAD",
-        redirect: "follow",
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        },
     });
 
-    return response.url;
+    const data: any = await response.json();
+    return data.url;
 }
 
 type ProcessedScreen = Omit<Screen, 'created' | 'creator' | 'thumbnails' | 'id'>;
-
-interface ContentItem {
-    url?: string;
-    [key: string]: any;
-}
 
 export function preProcess<T>(data: T): Partial<T> {
   if (Array.isArray(data)) {
@@ -39,17 +37,6 @@ export function preProcess<T>(data: T): Partial<T> {
       if (key === 'opacity' && value === 1) continue;
       if (key === 'blend_mode' && value === 'normal') continue;
       if (key === 'rotation' && value === 0) continue;
-
-      if (key === 'assets' && Array.isArray(value)) {
-        const processedAssets = value.map(asset => {
-          if (asset.contents && Array.isArray(asset.contents)) {
-            asset.contents = asset.contents.filter((content: ContentItem) => !content.url);
-          }
-          return preProcess(asset);
-        });
-        result[key] = processedAssets;
-        continue;
-      }
 
       const processedValue = preProcess(value);
 
