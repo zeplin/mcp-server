@@ -25,7 +25,7 @@ import {
  * @param url The resolved Zeplin screen URL
  * @returns Formatted response object with screen data or error message
  */
-export async function getScreenData(url: string) {
+export async function getScreenData(url: string, includeVariants: boolean) {
     const match = url.match(URL_PATTERNS.SCREEN);
     if (!match) {
         return errorResponse("Screen link is not valid — here's the expected format: https://app.zeplin.io/project/{projectId}/screen/{screenId}");
@@ -41,7 +41,7 @@ export async function getScreenData(url: string) {
         let screenIds: string[];
         let variantNames: string[];
 
-        if (screen.variant) {
+        if (screen.variant && includeVariants) {
             const variantGroupId = screen.variant.group.id;
             const variantGroupResponse = await api.screens.getScreenVariant(
                 projectId,
@@ -246,10 +246,14 @@ server.tool(
     "Get design data of a screen in Zeplin.",
     {
         url: z.string().url(),
+        includeVariants: z.boolean().default(true)
+        .describe(
+            "Whether to include variants in the response. If true, the response will contain all variants of the screen. This is better to cover all cases however it takes more context window.",
+        ),
     },
-    async ({ url }) => {
+    async ({ url, includeVariants }) => {
         const resolvedUrl = await resolveUrl(url.trim());
-        return await getScreenData(resolvedUrl);
+        return await getScreenData(resolvedUrl, includeVariants);
     },
 );
 
