@@ -1,6 +1,6 @@
 import { ZeplinApi, type Asset } from "@zeplin/sdk";
 import { Configuration } from "@zeplin/sdk";
-import { preProcess } from "./util.js";
+import { preProcess, preProcessDesignTokens } from "./util.js";
 
 export const api = new ZeplinApi(
     new Configuration({ accessToken: process.env.ZEPLIN_ACCESS_TOKEN }),
@@ -114,4 +114,20 @@ export async function processScreenVersionsAndAnnotations(
             assets: screenVersion.assets,
         };
     });
+}
+
+export async function getProjectDesignTokens(projectId: string) {
+    const designTokens = await api.designTokens.getProjectDesignTokens(projectId, { includeLinkedStyleguides: true });
+
+    return {
+        designTokens: preProcessDesignTokens(designTokens.data),
+    }
+}
+
+export async function getStyleguideDesignTokens(styleguideId: string) {
+    const designTokens = await api.designTokens.getStyleguideDesignTokens(styleguideId, { includeLinkedStyleguides: true });
+
+    return {
+        designTokens: preProcessDesignTokens(designTokens.data),
+    }
 }

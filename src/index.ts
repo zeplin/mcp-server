@@ -15,7 +15,9 @@ import {
     errorResponse,
     formatSuccessResponse,
     collectAssets,
-    processScreenVersionsAndAnnotations
+    processScreenVersionsAndAnnotations,
+    getProjectDesignTokens,
+    getStyleguideDesignTokens
 } from "./api-utils.js";
 
 /**
@@ -67,7 +69,9 @@ export async function getScreenData(url: string) {
             variantNames
         );
 
-        const response = { name, variants };
+        const designTokens = await getProjectDesignTokens(projectId);
+
+        const response = { name, variants, designTokens };
 
         return formatSuccessResponse({
             type: "Screen",
@@ -117,6 +121,13 @@ export async function getComponentData(url: string) {
                 { includeLatestVersion: true },
             );
         }
+
+        // Fetch design tokens based on component type
+        const designTokens = isProjectComponent && projectId
+            ? await getProjectDesignTokens(projectId)
+            : styleguideId
+              ? await getStyleguideDesignTokens(styleguideId)
+              : undefined;
 
         const component = componentResponse.data;
         const sectionId = component.section?.id;
@@ -169,6 +180,7 @@ export async function getComponentData(url: string) {
                     assets: componentVariant.latestVersion?.assets,
                 };
             }),
+            designTokens: designTokens?.designTokens,
         };
 
         return formatSuccessResponse(response, INSTRUCTIONS);

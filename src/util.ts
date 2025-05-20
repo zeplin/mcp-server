@@ -1,4 +1,4 @@
-import type { Screen } from "@zeplin/sdk";
+import type { DesignTokens, Screen } from "@zeplin/sdk";
 
 export async function resolveUrl(url: string): Promise<string> {
     if (!url.startsWith("https://zpl.io/")) {
@@ -53,4 +53,32 @@ export function preProcess<T>(data: T): Partial<T> {
 
 export function preProcessScreen(screen: Screen): Partial<ProcessedScreen> {
   return preProcess<Screen>(screen);
+}
+
+export function preProcessDesignTokens(designTokens: DesignTokens) {
+  const processedTokens = preProcess(designTokens);
+
+  // Create a recursive function to specifically remove metadata fields at all levels
+  function removeMetadata(obj: any): any {
+    if (Array.isArray(obj)) {
+      return obj.map(removeMetadata);
+    } else if (obj !== null && typeof obj === 'object') {
+      const result: Record<string, any> = {};
+
+      for (const [key, value] of Object.entries(obj)) {
+        // Skip metadata field
+        if (key === 'metadata') continue;
+
+        // Process nested objects recursively
+        result[key] = removeMetadata(value);
+      }
+
+      return result;
+    } else {
+      return obj;
+    }
+  }
+
+  // Apply the metadata removal to the already processed tokens
+  return removeMetadata(processedTokens);
 }

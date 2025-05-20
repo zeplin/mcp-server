@@ -37,8 +37,12 @@ export const INSTRUCTIONS = `**Role:** You are an expert front-end developer tas
                 *   Use flexible layout techniques ([e.g., Flexbox, Grid, StackViews, AutoLayout]) appropriate for the target framework.
                 *   **Avoid hardcoding pixel dimensions or absolute positions.** Use relative units, spacing tokens, or layout containers that adapt. Layer \`rect\` data in the JSON is a guide, not a rigid spec.
             *   **c. Styling:**
-                *   **Design Tokens First:** Before using raw color (e.g., \`#FFC738\`) or typography values (e.g., \`font-size: 16px\`), **always** attempt to map them to existing design tokens or variables (e.g., \`colors.primary\`, \`typography.heading\`, \`spacing.medium\`) potentially provided in the codebase context or inferred from common naming schemes.
-                *   If no matching token is found, use the specific value from the JSON but add a comment indicating a potential token is missing (e.g., \`// TODO: Use design token for color #F69833\`).
+                *   **Design Tokens First:** When styling elements based on color (e.g., from a layer's fills like color: {r:38, g:43, b:46, a:1}) or typography (e.g., from textStyles like fontFamily: "Graphik", fontSize: 16, fontWeight: 500), your first priority is to find a matching design token.
+                *   Consult Input JSON \`designTokens\`: Look for a token within the designTokens section of the provided input JSON. Match based on the value of the token. For example, if a layer has color: {r:38, g:43, b:46, a:1}, search for a color token whose value is rgb(38, 43, 46). If a text layer uses fontFamily: "Graphik", fontSize: 13, fontWeight: 500, search for a text style token whose value includes these font properties.
+                *   Codebase Context (Fallback): If no direct match is found in the input JSON's designTokens, then attempt to map them to existing design tokens or variables from the provided codebase context.
+                *   Raw Values (Last Resort): If no matching token is found in either the input JSON's designTokens or the codebase context, use the specific value from the JSON layer data but add a comment indicating a potential token is missing. For example:
+                    // TODO: Use design token for color rgba(38, 43, 46, 1)
+                    // TODO: Use design token for font: Graphik, 16px, 500w, letterSpacing 0.16
             *   **d. Content & Assets:**
                 *   Use exact text \`content\` provided in the JSON data for labels, headings, paragraphs, etc.
                 *   For images or icons identified in the JSON (e.g., via \`layer_name\` or \`component_name\` like "Omlet logo", "GitHub logo"), first search for them in the codebase and use them if they already exist.
