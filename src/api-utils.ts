@@ -58,10 +58,76 @@ export function collectAssets(responseData: any): void {
     }
 }
 
+/**
+ * Recursively searches for a component with the given name in the layer tree
+ * and returns the layer, its parent, and path to the component
+ */
+function findComponentInLayers(
+    layers: any[],
+    targetComponentName: string,
+    parentLayer: any = null,
+    path: any[] = []
+): { found: boolean; layer: any; parentLayer: any; path: any[] } {
+    if (!layers || !Array.isArray(layers)) {
+        return { found: false, layer: null, parentLayer: null, path: [] };
+    }
+
+    for (const layer of layers) {
+        if (layer.componentName === targetComponentName) {
+            return { found: true, layer, parentLayer, path: [...path, layer] };
+        }
+
+        if (layer.layers && Array.isArray(layer.layers)) {
+            const result = findComponentInLayers(
+                layer.layers,
+                targetComponentName,
+                layer,
+                [...path, layer]
+            );
+
+            if (result.found) {
+                return result;
+            }
+        }
+    }
+
+    return { found: false, layer: null, parentLayer: null, path: [] };
+}
+
+/**
+ * Prunes layers data to only include the target component, its immediate parent, and all of its children.
+ * @param layers The full layers array from a screen version.
+ * @param targetComponentName The name of the component to find and keep.
+ */
+function pruneLayersForComponent(layers: any[], targetComponentName: string): any[] {
+    if (!targetComponentName) {
+        return layers;
+    }
+    if (!Array.isArray(layers)) {
+        return [];
+    }
+
+    const { found, layer: targetLayer, parentLayer } = findComponentInLayers(layers, targetComponentName);
+
+    if (!found || !targetLayer) {
+        return [];
+    }
+
+    if (parentLayer) {
+        const prunedParent = { ...parentLayer };
+        prunedParent.layers = [targetLayer];
+
+        return [prunedParent];
+    } else {
+        return [targetLayer];
+    }
+}
+
 export async function processScreenVersionsAndAnnotations(
     projectId: string,
     screenIds: string[],
-    variantNames: string[]
+    variantNames: string[],
+    targetComponentName?: string
 ) {
     const screenVersionResponses = await Promise.all(
         screenIds.map(async (screenId) => {
@@ -107,10 +173,16 @@ export async function processScreenVersionsAndAnnotations(
             });
         }
 
+        // If targetComponentName is provided, prune the layers.
+        // Otherwise, use all layers from the screenVersion.
+        const layersToInclude = targetComponentName
+            ? pruneLayersForComponent(screenVersion.layers || [], targetComponentName)
+            : screenVersion.layers || [];
+
         return {
             name: variantNames[index],
             annotations: screenAnnotations[index],
-            layers: screenVersion.layers,
+            layers: layersToInclude,
             assets: screenVersion.assets,
         };
     });
