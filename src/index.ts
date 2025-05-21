@@ -23,9 +23,11 @@ import {
 /**
  * Fetches and processes screen data from Zeplin
  * @param url The resolved Zeplin screen URL
+ * @param includeVariants Whether to include variants in the response
+ * @param targetComponentName Optional name of component to extract layer data for
  * @returns Formatted response object with screen data or error message
  */
-export async function getScreenData(url: string, includeVariants: boolean) {
+export async function getScreenData(url: string, includeVariants: boolean, targetComponentName?: string) {
     const match = url.match(URL_PATTERNS.SCREEN);
     if (!match) {
         return errorResponse("Screen link is not valid — here's the expected format: https://app.zeplin.io/project/{projectId}/screen/{screenId}");
@@ -66,7 +68,8 @@ export async function getScreenData(url: string, includeVariants: boolean) {
         const variants = await processScreenVersionsAndAnnotations(
             projectId,
             screenIds,
-            variantNames
+            variantNames,
+            targetComponentName
         );
 
         const designTokens = await getProjectDesignTokens(projectId);
@@ -250,10 +253,14 @@ server.tool(
         .describe(
             "Whether to include variants in the response. If true, the response will contain all variants of the screen. This is better to cover all cases however it takes more context window.",
         ),
+        targetComponentName: z.string().optional()
+        .describe(
+            "The name of the component you want to extract the layer data from the screen. If user mentions a specific component name, use this to fetch only a subset of layer data from the screen. If not provided, all layers will be fetched.",
+        ),
     },
-    async ({ url, includeVariants }) => {
+    async ({ url, includeVariants, targetComponentName }) => {
         const resolvedUrl = await resolveUrl(url.trim());
-        return await getScreenData(resolvedUrl, includeVariants);
+        return await getScreenData(resolvedUrl, includeVariants, targetComponentName);
     },
 );
 
