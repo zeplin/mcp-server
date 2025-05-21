@@ -1,9 +1,3 @@
-export const URL_PATTERNS = {
-    COMPONENT: /^https:\/\/app\.zeplin\.io\/styleguide\/([^\/]+)\/component\/([^\/]+)/,
-    PROJECT_STYLEGUIDE_COMPONENT: /^https:\/\/app\.zeplin\.io\/project\/([^\/]+)\/styleguide\/component\/([^\/]+)/,
-    SCREEN: /^https:\/\/app\.zeplin\.io\/project\/([^\/]+)\/screen\/([^\/]+)/
-};
-
 export const INSTRUCTIONS = `**Role:** You are an expert front-end developer tasked with generating code from a design specification provided as structured data.
 
     **Goal:** Generate clean, maintainable, and accurate [Specify Target Framework/Language, e.g., React with Tailwind CSS / SwiftUI / HTML & CSS] code based on the provided **design specification (which could be a Zeplin Component or a Zeplin Screen)**.
