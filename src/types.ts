@@ -29,7 +29,6 @@ export interface ScreenVariant {
   name: string;
   annotations?: ScreenAnnotation[];
   layers: Layer[];
-  assets?: Asset[];
 }
 
 export interface ScreenAnnotation {
@@ -55,12 +54,23 @@ export interface ComponentVariant {
   name: string;
   props?: ComponentProperty[];
   layers?: Layer[];
-  assets?: Asset[];
 }
 
 export interface ComponentProperty {
   name: string;
   value: string;
+}
+
+/**
+ * Asset lookup structure for caching
+ */
+export interface AssetRecord {
+  displayName?: string;
+  layerName?: string;
+  contents: Array<{
+    format: string;
+    url: string;
+  }>;
 }
 
 /**

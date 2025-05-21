@@ -1,4 +1,3 @@
-import type { Asset } from "@zeplin/sdk";
 import type { ApiResponse, ResponseContent, ResponseOptions } from "../types.js";
 
 /**
@@ -64,41 +63,4 @@ export function createResponse(options: ResponseOptions): ApiResponse<unknown> {
     content,
     isError: options.isError
   };
-}
-
-/**
- * Collects assets from response data for later download
- * @param responseData The response data containing assets
- * @param assetCollection The collection to add assets to
- */
-export function collectAssets(
-  responseData: any, 
-  assetCollection: Asset[]
-): void {
-  // Reset the assets collection if needed
-  if (assetCollection.length === 0) {
-    // No need to reset if already empty
-  }
-
-  // Extract assets from variants
-  if (Array.isArray(responseData.variants)) {
-    responseData.variants.forEach((variant: any) => {
-      if (variant.assets && Array.isArray(variant.assets)) {
-        variant.assets.forEach((asset: Asset) => {
-          if (asset.contents) {
-            assetCollection.push(asset);
-          }
-        });
-      }
-    });
-  }
-
-  // Extract assets from component
-  if (responseData.component?.latestVersion?.assets) {
-    responseData.component.latestVersion.assets.forEach((asset: Asset) => {
-      if (asset.contents) {
-        assetCollection.push(asset);
-      }
-    });
-  }
 }

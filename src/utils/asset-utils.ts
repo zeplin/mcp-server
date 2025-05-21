@@ -4,25 +4,61 @@ import fetch from "node-fetch";
 import type { Asset } from "@zeplin/sdk";
 import { createErrorResponse, createResponse } from "./response-utils.js";
 import type { ApiResponse } from "../types.js";
+import { assetRegistry } from "./asset-registry.js";
 
 /**
- * Finds an asset by its source ID
+ * Finds an asset by its source ID from the asset registry
  * @param sourceId The source ID to search for
- * @param assets The collection of assets to search in
- * @returns The matching asset or undefined if not found
+ * @returns Object containing the asset URL and information or undefined
  */
-export function findAssetById(sourceId: string, assets: Asset[]): Asset | undefined {
-  return assets.find(asset => asset.layerSourceId === sourceId);
+export function findAssetById(sourceId: string): {url?: string, format?: string, displayName?: string} | undefined {
+  const record = assetRegistry.getAssetRecord(sourceId);
+  if (!record || record.contents.length === 0) return undefined;
+  
+  return {
+    url: record.contents[0].url,
+    format: record.contents[0].format,
+    displayName: record.displayName
+  };
 }
 
 /**
- * Finds a downloadable asset URL for the specified format
- * @param asset The asset to get the URL from
+ * Gets a downloadable asset URL for the specified format
+ * @param sourceId The source ID of the asset
  * @param format The desired file format
  * @returns The URL or undefined if not available
  */
-export function getAssetUrl(asset: Asset, format: string): string | undefined {
-  return asset.contents?.find(content => content.format === format)?.url;
+export function getAssetUrl(sourceId: string, format: string): string | undefined {
+  return assetRegistry.getAssetUrl(sourceId, format);
+}
+
+/**
+ * Removes assets from response data to reduce payload size
+ * @param data The data to sanitize
+ * @returns The data with assets removed
+ */
+export function sanitizeResponse(data: any): any {
+  if (!data) return data;
+
+  // Register assets first
+  assetRegistry.extractAssetsFromData(data);
+
+  // Create a deep clone of the data
+  const result = JSON.parse(JSON.stringify(data));
+
+  // Remove assets from variants
+  if (Array.isArray(result.variants)) {
+    result.variants.forEach((variant: any) => {
+      delete variant.assets;
+    });
+  }
+
+  // Remove assets from component
+  if (result.component?.latestVersion) {
+    delete result.component.latestVersion.assets;
+  }
+
+  return result;
 }
 
 /**

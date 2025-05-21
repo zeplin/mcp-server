@@ -2,19 +2,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import type { Asset } from "@zeplin/sdk";
 
 import { resolveUrl, URL_PATTERNS } from "./utils/url-utils.js";
 import { INSTRUCTIONS } from "./constants.js";
 import {
   findAssetById,
   getAssetUrl,
-  downloadAsset
+  downloadAsset,
+  sanitizeResponse
 } from "./utils/asset-utils.js";
 import {
   createErrorResponse,
-  createSuccessResponse,
-  collectAssets
+  createSuccessResponse
 } from "./utils/response-utils.js";
 import {
   api,
@@ -22,14 +21,12 @@ import {
   fetchStyleguideDesignTokens,
   processScreenVersionsAndAnnotations
 } from "./utils/api-utils.js";
+import { assetRegistry } from "./utils/asset-registry.js";
 import type {
   ScreenData,
   ComponentData,
   ApiResponse
 } from "./types.js";
-
-// Collection of assets for download
-const assets: Asset[] = [];
 
 /**
  * Fetches and processes screen data from Zeplin
@@ -39,8 +36,8 @@ const assets: Asset[] = [];
  * @returns Formatted response object with screen data or error message
  */
 export async function getScreenData(
-  url: string,
-  includeVariants: boolean,
+  url: string, 
+  includeVariants: boolean, 
   targetComponentName?: string
 ): Promise<ApiResponse<ScreenData>> {
   const match = url.match(URL_PATTERNS.SCREEN);
@@ -51,6 +48,9 @@ export async function getScreenData(
   const [_, projectId, screenId] = match;
 
   try {
+    // Reset the asset registry to clear any previous assets
+    assetRegistry.reset();
+    
     const screenResponse = await api.screens.getScreen(projectId, screenId);
     const screen = screenResponse.data;
 
@@ -87,17 +87,10 @@ export async function getScreenData(
       targetComponentName
     );
 
-    // Reset asset collection
-    assets.length = 0;
-
-    // Collect assets from variants
+    // Register assets for future lookups but don't include them in the response
     variants.forEach(variant => {
       if (variant.assets && variant.assets.length > 0) {
-        variant.assets.forEach(asset => {
-          if (asset.contents) {
-            assets.push(asset);
-          }
-        });
+        assetRegistry.registerAssets(variant.assets.filter(asset => asset.contents));
       }
     });
 
@@ -106,7 +99,12 @@ export async function getScreenData(
     const screenData: ScreenData = {
       type: "Screen",
       name,
-      variants,
+      variants: variants.map(variant => ({
+        name: variant.name,
+        annotations: variant.annotations,
+        layers: variant.layers
+        // Assets are intentionally omitted
+      })),
       designTokens: designTokens.designTokens
     };
 
@@ -135,6 +133,9 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
   }
 
   try {
+    // Reset the asset registry to clear any previous assets
+    assetRegistry.reset();
+    
     let componentResponse;
     let styleguideId: string | undefined;
     let projectId: string | undefined;
@@ -166,13 +167,22 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
     const component = componentResponse.data;
     const sectionId = component.section?.id;
 
-    // Reset asset collection
-    assets.length = 0;
+    // Register assets for future lookups but don't include them in the response
+    if (component.latestVersion?.assets) {
+      assetRegistry.registerAssets(component.latestVersion.assets.filter(asset => asset.contents));
+    }
 
     // If no section information is available, return the component directly
     if (!sectionId || !styleguideId) {
-      const response: ComponentData = { component };
-      collectAssets(response, assets);
+      // Create a deep copy to avoid modifying the original
+      const sanitizedComponent = JSON.parse(JSON.stringify(component));
+      
+      // Create a clean version without assets for the response
+      if (sanitizedComponent.latestVersion && 'assets' in sanitizedComponent.latestVersion) {
+        delete sanitizedComponent.latestVersion.assets;
+      }
+      
+      const response: ComponentData = { component: sanitizedComponent };
       return createSuccessResponse(response, INSTRUCTIONS);
     }
 
@@ -181,8 +191,15 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
     const section = sections.find((s) => s.id === sectionId);
 
     if (!section) {
-      const response: ComponentData = { component };
-      collectAssets(response, assets);
+      // Create a deep copy to avoid modifying the original
+      const sanitizedComponent = JSON.parse(JSON.stringify(component));
+      
+      // Create a clean version without assets for the response
+      if (sanitizedComponent.latestVersion && 'assets' in sanitizedComponent.latestVersion) {
+        delete sanitizedComponent.latestVersion.assets;
+      }
+      
+      const response: ComponentData = { component: sanitizedComponent };
       return createSuccessResponse(response, INSTRUCTIONS);
     }
 
@@ -196,17 +213,18 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
 
     const sectionComponents = sectionComponentsResponse.data;
 
+    // Register all assets from variants
+    sectionComponents.forEach(componentVariant => {
+      if (componentVariant.latestVersion?.assets) {
+        assetRegistry.registerAssets(
+          componentVariant.latestVersion.assets.filter(asset => asset.contents)
+        );
+      }
+    });
+
     const componentData: ComponentData = {
       name: section.name,
       variants: sectionComponents.map((componentVariant) => {
-        if (componentVariant.latestVersion?.assets && componentVariant.latestVersion.assets.length > 0) {
-          componentVariant.latestVersion.assets.forEach(asset => {
-            if (asset.contents) {
-              assets.push(asset);
-            }
-          });
-        }
-
         return {
           name: componentVariant.name,
           props: componentVariant.variantProperties?.map((property) => ({
@@ -214,7 +232,7 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
             value: property.value,
           })),
           layers: componentVariant.latestVersion?.layers,
-          assets: componentVariant.latestVersion?.assets,
+          // Assets are intentionally omitted
         };
       }),
       designTokens: designTokens?.designTokens,
@@ -293,16 +311,10 @@ server.tool(
       ),
   },
   async ({ sourceId, localPath, assetType }) => {
-    const relevantAsset = findAssetById(sourceId, assets);
-
-    if (!relevantAsset) {
-      return createErrorResponse(`No asset found with layer source ID: ${sourceId}`);
-    }
-
-    const assetUrl = getAssetUrl(relevantAsset, assetType);
+    const assetUrl = getAssetUrl(sourceId, assetType);
 
     if (!assetUrl) {
-      return createErrorResponse(`Asset found but no downloadable content available for the selected asset type ${assetType} or layer source ID: ${sourceId}`);
+      return createErrorResponse(`No asset found with layer source ID: ${sourceId} and format ${assetType}`);
     }
 
     return await downloadAsset(assetUrl, localPath);
