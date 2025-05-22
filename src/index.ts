@@ -32,13 +32,13 @@ import type {
  * Fetches and processes screen data from Zeplin
  * @param url The resolved Zeplin screen URL
  * @param includeVariants Whether to include variants in the response
- * @param targetComponentName Optional name of component to extract layer data for
+ * @param targetLayerName Optional name of layer to extract layer data for
  * @returns Formatted response object with screen data or error message
  */
 export async function getScreenData(
-  url: string, 
-  includeVariants: boolean, 
-  targetComponentName?: string
+  url: string,
+  includeVariants: boolean,
+  targetLayerName?: string
 ): Promise<ApiResponse<ScreenData>> {
   const match = url.match(URL_PATTERNS.SCREEN);
   if (!match) {
@@ -50,7 +50,7 @@ export async function getScreenData(
   try {
     // Reset the asset registry to clear any previous assets
     assetRegistry.reset();
-    
+
     const screenResponse = await api.screens.getScreen(projectId, screenId);
     const screen = screenResponse.data;
 
@@ -84,7 +84,7 @@ export async function getScreenData(
       projectId,
       screenIds,
       variantNames,
-      targetComponentName
+      targetLayerName
     );
 
     // Register assets for future lookups but don't include them in the response
@@ -135,7 +135,7 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
   try {
     // Reset the asset registry to clear any previous assets
     assetRegistry.reset();
-    
+
     let componentResponse;
     let styleguideId: string | undefined;
     let projectId: string | undefined;
@@ -176,12 +176,12 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
     if (!sectionId || !styleguideId) {
       // Create a deep copy to avoid modifying the original
       const sanitizedComponent = JSON.parse(JSON.stringify(component));
-      
+
       // Create a clean version without assets for the response
       if (sanitizedComponent.latestVersion && 'assets' in sanitizedComponent.latestVersion) {
         delete sanitizedComponent.latestVersion.assets;
       }
-      
+
       const response: ComponentData = { component: sanitizedComponent };
       return createSuccessResponse(response, INSTRUCTIONS);
     }
@@ -193,12 +193,12 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
     if (!section) {
       // Create a deep copy to avoid modifying the original
       const sanitizedComponent = JSON.parse(JSON.stringify(component));
-      
+
       // Create a clean version without assets for the response
       if (sanitizedComponent.latestVersion && 'assets' in sanitizedComponent.latestVersion) {
         delete sanitizedComponent.latestVersion.assets;
       }
-      
+
       const response: ComponentData = { component: sanitizedComponent };
       return createSuccessResponse(response, INSTRUCTIONS);
     }
@@ -277,15 +277,15 @@ server.tool(
       .describe(
         "Whether to include variants in the response. If true, the response will contain all variants of the screen. This is better to cover all cases however it takes more context window length.",
       ),
-    targetComponentName: z.string().optional()
+    targetLayerName: z.string().optional()
       .describe(
         "The name of the component you want to extract the layer data from the screen. If user mentions a specific component name, use this to fetch only a subset of layer data from the screen. If not provided, all layers will be fetched.",
       ),
   },
-  async ({ url, includeVariants, targetComponentName }) => {
+  async ({ url, includeVariants, targetLayerName }) => {
     try {
       const resolvedUrl = await resolveUrl(url.trim());
-      return await getScreenData(resolvedUrl, includeVariants, targetComponentName);
+      return await getScreenData(resolvedUrl, includeVariants, targetLayerName);
     } catch (error) {
       return createErrorResponse(`Error resolving or processing URL: ${error instanceof Error ? error.message : String(error)}`);
     }

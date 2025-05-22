@@ -14,14 +14,14 @@ export const api = new ZeplinApi(
  * Recursively searches for a component with the given name in the layer tree
  * and returns the layer, its parent, and path to the component
  * @param layers Array of layers to search through
- * @param targetComponentName Name of the component to find
+ * @param targetLayerName Name of the component to find
  * @param parentLayer Optional parent layer reference
  * @param path Optional path to the current position in the tree
  * @returns Object containing found status, layer, parent layer, and path
  */
-export function findComponentInLayers(
+export function findTargetLayer(
   layers: Layer[],
-  targetComponentName: string,
+  targetLayerName: string,
   parentLayer: Layer | null = null,
   path: Layer[] = []
 ): { found: boolean; layer: Layer | null; parentLayer: Layer | null; path: Layer[] } {
@@ -30,14 +30,14 @@ export function findComponentInLayers(
   }
 
   for (const layer of layers) {
-    if (layer.componentName === targetComponentName || layer.name === targetComponentName) {
+    if (layer.componentName === targetLayerName || layer.name === targetLayerName) {
       return { found: true, layer, parentLayer, path: [...path, layer] };
     }
 
     if (layer.layers && Array.isArray(layer.layers)) {
-      const result = findComponentInLayers(
+      const result = findTargetLayer(
         layer.layers,
-        targetComponentName,
+        targetLayerName,
         layer,
         [...path, layer]
       );
@@ -54,11 +54,11 @@ export function findComponentInLayers(
 /**
  * Prunes layers data to only include the target component, its immediate parent, and all of its children.
  * @param layers The full layers array from a screen version.
- * @param targetComponentName The name of the component to find and keep.
+ * @param targetLayerName The name of the layer/component to find and keep.
  * @returns Pruned layer array containing only relevant layers
  */
-export function pruneLayersForComponent(layers: Layer[], targetComponentName: string): Layer[] {
-  if (!targetComponentName) {
+export function pruneLayersForTargetLayer(layers: Layer[], targetLayerName: string): Layer[] {
+  if (!targetLayerName) {
     return layers;
   }
 
@@ -66,7 +66,7 @@ export function pruneLayersForComponent(layers: Layer[], targetComponentName: st
     return [];
   }
 
-  const { found, layer: targetLayer, parentLayer } = findComponentInLayers(layers, targetComponentName);
+  const { found, layer: targetLayer, parentLayer } = findTargetLayer(layers, targetLayerName);
 
   if (!found || !targetLayer) {
     return [];
@@ -112,14 +112,14 @@ export async function fetchStyleguideDesignTokens(styleguideId: string): Promise
  * @param projectId The project ID
  * @param screenIds Array of screen IDs
  * @param variantNames Array of variant names
- * @param targetComponentName Optional component name to extract
+ * @param targetLayerName Optional layer name to extract
  * @returns Array of processed screen variants
  */
 export async function processScreenVersionsAndAnnotations(
   projectId: string,
   screenIds: string[],
   variantNames: string[],
-  targetComponentName?: string
+  targetLayerName?: string
 ) {
   // Fetch all screen versions in parallel
   const screenVersionResponses = await Promise.all(
@@ -161,10 +161,10 @@ export async function processScreenVersionsAndAnnotations(
   return screenVersionResponses.map((response, index) => {
     const screenVersion = response.data;
 
-    // If targetComponentName is provided, prune the layers.
+    // If targetLayerName is provided, prune the layers.
     // Otherwise, use all layers from the screenVersion.
-    const layersToInclude = targetComponentName
-      ? pruneLayersForComponent(screenVersion.layers || [], targetComponentName)
+    const layersToInclude = targetLayerName
+      ? pruneLayersForTargetLayer(screenVersion.layers || [], targetLayerName)
       : screenVersion.layers || [];
 
     return {
