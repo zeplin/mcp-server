@@ -133,7 +133,6 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
   }
 
   try {
-    // Reset the asset registry to clear any previous assets
     assetRegistry.reset();
 
     let componentResponse;
@@ -157,7 +156,6 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
       );
     }
 
-    // Fetch design tokens based on component type
     const designTokens = isProjectComponent && projectId
       ? await fetchProjectDesignTokens(projectId)
       : styleguideId
@@ -172,12 +170,9 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
       assetRegistry.registerAssets(component.latestVersion.assets.filter(asset => asset.contents));
     }
 
-    // If no section information is available, return the component directly
     if (!sectionId || !styleguideId) {
-      // Create a deep copy to avoid modifying the original
       const sanitizedComponent = JSON.parse(JSON.stringify(component));
 
-      // Create a clean version without assets for the response
       if (sanitizedComponent.latestVersion && 'assets' in sanitizedComponent.latestVersion) {
         delete sanitizedComponent.latestVersion.assets;
       }
@@ -191,10 +186,8 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
     const section = sections.find((s) => s.id === sectionId);
 
     if (!section) {
-      // Create a deep copy to avoid modifying the original
       const sanitizedComponent = JSON.parse(JSON.stringify(component));
 
-      // Create a clean version without assets for the response
       if (sanitizedComponent.latestVersion && 'assets' in sanitizedComponent.latestVersion) {
         delete sanitizedComponent.latestVersion.assets;
       }
@@ -213,7 +206,6 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
 
     const sectionComponents = sectionComponentsResponse.data;
 
-    // Register all assets from variants
     sectionComponents.forEach(componentVariant => {
       if (componentVariant.latestVersion?.assets) {
         assetRegistry.registerAssets(
@@ -297,9 +289,9 @@ server.tool(
   "download_layer_asset",
   "Download SVG, PNG asset from Zeplin. Use if you couldn't find the assets in the codebase context.",
   {
-    sourceId: z.string()
+    layerSourceId: z.string()
       .describe(
-        "The source ID of the asset you want to download. This ID is used to identify the specific asset in Zeplin.",
+        "The source ID of the layer that you want the assets of.",
       ),
     localPath: z.string()
       .describe(
@@ -310,11 +302,11 @@ server.tool(
         "The type of asset you want to download. This can be either 'svg', 'jpg', 'png' or 'pdf'. Check which content type is preferred in the codebase context and set this accordingly.",
       ),
   },
-  async ({ sourceId, localPath, assetType }) => {
-    const assetUrl = getAssetUrl(sourceId, assetType);
+  async ({ layerSourceId, localPath, assetType }) => {
+    const assetUrl = getAssetUrl(layerSourceId, assetType);
 
     if (!assetUrl) {
-      return createErrorResponse(`No asset found with layer source ID: ${sourceId} and format ${assetType}`);
+      return createErrorResponse(`No asset found with layer source ID: ${layerSourceId} and format ${assetType}`);
     }
 
     return await downloadAsset(assetUrl, localPath);
