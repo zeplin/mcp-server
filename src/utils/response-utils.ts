@@ -30,7 +30,7 @@ export function createSuccessResponse<T>(data: T, instructionsTemplate: string):
         type: "text" as const,
         text: `${instructionsTemplate}
 
-              ${typeof data === 'string' ? data : `${(data as any).type || ''} data in JSON format:
+              ${typeof data === "string" ? data : `${(data as any).type || ""} data in JSON format:
               ${JSON.stringify(data, null, 2)}`}`,
       },
     ],
@@ -44,21 +44,21 @@ export function createSuccessResponse<T>(data: T, instructionsTemplate: string):
  */
 export function createResponse(options: ResponseOptions): ApiResponse<unknown> {
   const content: ResponseContent[] = [];
-  
+
   if (options.message) {
     content.push({
       type: "text",
       text: options.message
     });
   }
-  
-  if (options.data && typeof options.data !== 'string' && !options.isError) {
+
+  if (options.data && typeof options.data !== "string" && !options.isError) {
     content.push({
       type: "text",
       text: JSON.stringify(options.data, null, 2)
     });
   }
-  
+
   return {
     content,
     isError: options.isError

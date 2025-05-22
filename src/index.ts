@@ -3,30 +3,28 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-import { resolveUrl, URL_PATTERNS } from "./utils/url-utils.js";
-import { INSTRUCTIONS } from "./constants.js";
-import {
-  findAssetById,
-  getAssetUrl,
-  downloadAsset,
-  sanitizeResponse
-} from "./utils/asset-utils.js";
-import {
-  createErrorResponse,
-  createSuccessResponse
-} from "./utils/response-utils.js";
 import {
   api,
   fetchProjectDesignTokens,
   fetchStyleguideDesignTokens,
   processScreenVersionsAndAnnotations
-} from "./utils/api-utils.js";
-import { assetRegistry } from "./utils/asset-registry.js";
+} from "./clients/zeplinApi.js";
+import { INSTRUCTIONS } from "./constants.js";
 import type {
   ScreenData,
   ComponentData,
   ApiResponse
 } from "./types.js";
+import { assetRegistry } from "./utils/asset-registry.js";
+import {
+  getAssetUrl,
+  downloadAsset
+} from "./utils/asset-utils.js";
+import {
+  createErrorResponse,
+  createSuccessResponse
+} from "./utils/response-utils.js";
+import { resolveUrl, URL_PATTERNS } from "./utils/url-utils.js";
 
 /**
  * Fetches and processes screen data from Zeplin
@@ -173,7 +171,7 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
     if (!sectionId || !styleguideId) {
       const sanitizedComponent = JSON.parse(JSON.stringify(component));
 
-      if (sanitizedComponent.latestVersion && 'assets' in sanitizedComponent.latestVersion) {
+      if (sanitizedComponent.latestVersion && "assets" in sanitizedComponent.latestVersion) {
         delete sanitizedComponent.latestVersion.assets;
       }
 
@@ -188,7 +186,7 @@ export async function getComponentData(url: string): Promise<ApiResponse<Compone
     if (!section) {
       const sanitizedComponent = JSON.parse(JSON.stringify(component));
 
-      if (sanitizedComponent.latestVersion && 'assets' in sanitizedComponent.latestVersion) {
+      if (sanitizedComponent.latestVersion && "assets" in sanitizedComponent.latestVersion) {
         delete sanitizedComponent.latestVersion.assets;
       }
 

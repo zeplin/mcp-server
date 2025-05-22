@@ -4,9 +4,9 @@ import type { UrlResolverResponse } from "../types.js";
  * URL patterns for different Zeplin resource types
  */
 export const URL_PATTERNS = {
-  COMPONENT: /^https:\/\/app\.zeplin\.io\/styleguide\/([^\/]+)\/component\/([^\/]+)/,
-  PROJECT_STYLEGUIDE_COMPONENT: /^https:\/\/app\.zeplin\.io\/project\/([^\/]+)\/styleguide\/component\/([^\/]+)/,
-  SCREEN: /^https:\/\/app\.zeplin\.io\/project\/([^\/]+)\/screen\/([^\/]+)/
+  COMPONENT: /^https:\/\/app\.zeplin\.io\/styleguide\/([^/]+)\/component\/([^/]+)/,
+  PROJECT_STYLEGUIDE_COMPONENT: /^https:\/\/app\.zeplin\.io\/project\/([^/]+)\/styleguide\/component\/([^/]+)/,
+  SCREEN: /^https:\/\/app\.zeplin\.io\/project\/([^/]+)\/screen\/([^/]+)/
 };
 
 /**

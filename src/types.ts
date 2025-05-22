@@ -1,4 +1,4 @@
-import type { Asset, Layer, Component, Screen, DesignTokens } from "@zeplin/sdk";
+import type { Layer, Component } from "@zeplin/sdk";
 
 /**
  * Response structure for API responses

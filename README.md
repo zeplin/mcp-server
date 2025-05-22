@@ -10,6 +10,7 @@ The primary goal is to streamline the developer workflow by bridging the gap bet
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
+- [Development](#development)
 - [Usage with MCP Clients (e.g., Cursor)](#usage-with-mcp-clients-eg-cursor)
 - [Crafting Effective Prompts](#crafting-effective-prompts)
   - [Example Prompt 1: Minor Changes/Additions](#example-prompt-1-minor-changesadditions)
@@ -32,7 +33,7 @@ The primary goal is to streamline the developer workflow by bridging the gap bet
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repository-url>
+    git clone https://github.com/zeplin/zeplin-mcp.git
     ```
 
 2.  **Install dependencies:**
@@ -51,15 +52,56 @@ The primary goal is to streamline the developer workflow by bridging the gap bet
 
 ## Configuration
 
+Create a `.env` file in the root directory of the project with the following content:
+
+```bash
+ZEPLIN_ACCESS_TOKEN=your_zeplin_personal_access_token
+```
+
+Replace `your_zeplin_personal_access_token` with your actual Zeplin Personal Access Token.
+
+## Development
+
+This project includes several npm scripts to help you with development:
+
+```bash
+# Run TypeScript compiler in watch mode for development
+npm run dev
+
+# Build the project for production
+npm run build
+
+# Run ESLint on source files
+npm run lint
+
+# Automatically fix ESLint issues where possible
+npm run lint:fix
+
+# Test the MCP server locally with the inspector tool
+npm run inspect
+```
+
+### Code Style and Linting
+
+This project uses ESLint to enforce code quality and consistency. The configuration is in `eslint.config.js`. Key style guidelines include:
+
+- 2 space indentation
+- Double quotes for strings
+- Semicolons required
+- No trailing spaces
+- Organized imports
+
+When contributing to this project, please ensure your code follows these guidelines by running `npm run lint:fix` before submitting changes.
+
 ## Usage with MCP Clients (e.g., Cursor)
 
 To integrate this server with an MCP client like Cursor, you need to configure the client to connect to this server. Add the following to Cursor's `settings.json` (accessible via `Cmd/Ctrl + Shift + P` -> "Configure Language Specific Settings..." -> "JSON") or a similar configuration file for MCP providers:
 
-```json
+```jsonc
 // In your MCP client's configuration (e.g., Cursor's settings.json)
 {
   // ... other configurations
-  "modelcontext.providers": {
+  "mcpServers": {
     // ... other providers
     "zeplin-mcp": {
       "command": "node",

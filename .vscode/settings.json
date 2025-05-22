@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["typescript"],
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "files.eol": "\n"
+}

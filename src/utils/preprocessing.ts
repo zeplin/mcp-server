@@ -1,5 +1,4 @@
 import type { DesignTokens, Screen } from "@zeplin/sdk";
-import type { UrlResolverResponse } from "./types.js";
 
 /**
  * Preprocess a screen object to remove unnecessary information
@@ -36,15 +35,17 @@ export function preProcess<T>(data: T): Partial<T> {
   } else if (data !== null && typeof data === "object") {
     const result: Record<string, unknown> = {};
 
+    // Skip unnecessary properties
+    const propsToSkip = new Set(["created", "creator", "thumbnails", "id"]);
+    const defaultValues = new Map<string, unknown>([
+      ["opacity", 1],
+      ["blend_mode", "normal"],
+      ["rotation", 0]
+    ]);
+
     for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
-      // Skip unnecessary properties
-      if (key === "created") continue;
-      if (key === "creator") continue;
-      if (key === "thumbnails") continue;
-      if (key === "id") continue;
-      if (key === "opacity" && value === 1) continue;
-      if (key === "blend_mode" && value === "normal") continue;
-      if (key === "rotation" && value === 0) continue;
+      if (propsToSkip.has(key)) continue;
+      if (defaultValues.has(key) && defaultValues.get(key) === value) continue;
 
       let processedValue;
       if (key === "contents" && Array.isArray(value)) {
@@ -101,34 +102,5 @@ function removeMetadata<T>(obj: T): T {
     return result as unknown as T;
   } else {
     return obj;
-  }
-}
-
-/**
- * Resolves a Zeplin shortlink to its full URL
- * @param url The URL or shortlink to resolve
- * @returns The resolved URL
- */
-export async function resolveUrl(url: string): Promise<string> {
-  if (!url.startsWith("https://zpl.io/")) {
-    return url;
-  }
-
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json"
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to resolve URL: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json() as UrlResolverResponse;
-    return data.url;
-  } catch (error) {
-    throw new Error(`Failed to resolve URL: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

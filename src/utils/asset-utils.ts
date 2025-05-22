@@ -1,20 +1,23 @@
-import * as path from "path";
 import * as fs from "fs/promises";
 import fetch from "node-fetch";
-import type { Asset } from "@zeplin/sdk";
-import { createErrorResponse, createResponse } from "./response-utils.js";
+import * as path from "path";
+
 import type { ApiResponse } from "../types.js";
+
 import { assetRegistry } from "./asset-registry.js";
+import { createErrorResponse, createResponse } from "./response-utils.js";
+
+
 
 /**
  * Finds an asset by its source ID from the asset registry
  * @param sourceId The source ID to search for
  * @returns Object containing the asset URL and information or undefined
  */
-export function findAssetById(sourceId: string): {url?: string, format?: string, displayName?: string} | undefined {
+export function findAssetById(sourceId: string): { url?: string, format?: string, displayName?: string } | undefined {
   const record = assetRegistry.getAssetRecord(sourceId);
   if (!record || record.contents.length === 0) return undefined;
-  
+
   return {
     url: record.contents[0].url,
     format: record.contents[0].format,
@@ -40,20 +43,16 @@ export function getAssetUrl(sourceId: string, format: string): string | undefine
 export function sanitizeResponse(data: any): any {
   if (!data) return data;
 
-  // Register assets first
   assetRegistry.extractAssetsFromData(data);
 
-  // Create a deep clone of the data
   const result = JSON.parse(JSON.stringify(data));
 
-  // Remove assets from variants
   if (Array.isArray(result.variants)) {
     result.variants.forEach((variant: any) => {
       delete variant.assets;
     });
   }
 
-  // Remove assets from component
   if (result.component?.latestVersion) {
     delete result.component.latestVersion.assets;
   }
@@ -83,7 +82,7 @@ export async function downloadAsset(assetUrl: string, localDir: string): Promise
     if (!response.ok) {
       return createErrorResponse(`Failed to download asset: Server responded with ${response.status}`);
     }
-    
+
     const buffer = await response.arrayBuffer();
     await fs.writeFile(filePath, Buffer.from(buffer));
 

@@ -1,29 +1,54 @@
 {
-    "name": "zeplin-mcp-server",
-    "version": "0.1.0",
-    "description": "An MCP server for Zeplin",
-    "bin": {
-        "zeplin-mcp-server": "./dist/index.js"
-    },
-    "files": [
-        "dist"
-    ],
-    "type": "module",
-    "scripts": {
-        "dev": "tsc -w",
-        "build": "tsc",
-        "inspect": "source .env && npx @modelcontextprotocol/inspector -e ZEPLIN_ACCESS_TOKEN=$ZEPLIN_ACCESS_TOKEN node dist/index.js",
-        "prepublishOnly": "npm run build"
-    },
-    "dependencies": {
-        "@modelcontextprotocol/sdk": "^1.10.2",
-        "@zeplin/sdk": "^1.25.0",
-        "node-fetch": "^3.3.2",
-        "zod": "^3.24.3"
-    },
-    "devDependencies": {
-        "@types/jest": "^29.5.14",
-        "@types/node": "^22.14.1",
-        "typescript": "^5.8.3"
-    }
+  "name": "zeplin-mcp-server",
+  "version": "0.1.0",
+  "description": "An MCP server for Zeplin for AI assisted UI development.",
+  "author": "Zeplin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zeplin/zeplin-mcp.git"
+  },
+  "homepage": "https://github.com/zeplin/zeplin-mcp",
+  "bugs": {
+    "url": "https://github.com/zeplin/zeplin-mcp/issues"
+  },
+  "keywords": [
+    "zeplin",
+    "design",
+    "mcp",
+    "model context protocol",
+    "ai"
+  ],
+  "bin": {
+    "zeplin-mcp-server": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc",
+    "lint": "eslint --ext .ts src",
+    "lint:fix": "eslint --ext .ts --fix src",
+    "inspect": "source .env && npx @modelcontextprotocol/inspector -e ZEPLIN_ACCESS_TOKEN=$ZEPLIN_ACCESS_TOKEN node dist/index.js",
+    "prepublishOnly": "npm run lint && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "@zeplin/sdk": "^1.25.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.14.1",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0",
+    "eslint-plugin-import": "^2.31.0",
+    "globals": "^16.1.0",
+    "typescript": "^5.8.3"
+  }
 }
