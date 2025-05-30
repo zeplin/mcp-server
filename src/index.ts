@@ -243,7 +243,7 @@ const server = new McpServer({
 // Register the get_component tool
 server.tool(
   "get_component",
-  "Get design data of a component in Zeplin.",
+  "Fetches detailed design specifications for a specific Zeplin component, including its properties, variants, layers, and associated design tokens. Use this when you need to understand the structure and styling of a single, reusable UI element from Zeplin.",
   {
     url: z.string().url(),
   },
@@ -260,16 +260,16 @@ server.tool(
 // Register the get_screen tool
 server.tool(
   "get_screen",
-  "Get design data of a screen in Zeplin.",
+  "Fetches detailed design data for a specific screen from Zeplin. This includes screen variants, layer information (structure, position, styling), annotations, and project-level design tokens. Use this to understand screen layout, content, and interactions for development or review.",
   {
     url: z.string().url(),
     includeVariants: z.boolean().default(true)
       .describe(
-        "Whether to include variants in the response. If true, the response will contain all variants of the screen. This is better to cover all cases however it takes more context window length.",
+        "Set to `true` (default) to retrieve all variants of the screen (e.g., different states or sizes). Set to `false` if only the specific screen version linked in the URL is needed, or to conserve tokens if variants are not relevant to the user's query. Fetching all variants provides a complete picture but uses more tokens.",
       ),
     targetLayerName: z.string().optional()
       .describe(
-        "The name of the component you want to extract the layer data from the screen. If user mentions a specific component name, use this to fetch only a subset of layer data from the screen. If not provided, all layers will be fetched.",
+        "Optional. If the user's query refers to a specific named layer or element on the screen (e.g., 'the submit button', 'user profile image'), provide that layer's exact name here. This will focus the returned data on that specific layer and its children, making the response more concise and relevant. If omitted or the layer name is not found, data for all layers on the screen will be returned.",
       ),
   },
   async ({ url, includeVariants, targetLayerName }) => {
@@ -285,11 +285,11 @@ server.tool(
 // Register the download_layer_asset tool
 server.tool(
   "download_layer_asset",
-  "Download SVG, PNG asset from Zeplin. Use if you couldn't find the assets in the codebase context.",
+  "Downloads a specific visual asset (e.g., SVG icon, PNG image) for a given layer from Zeplin and saves it to a local path. Use this tool when an asset referenced in the design (obtained from `get_screen` or `get_component`) is missing from the codebase and needs to be fetched directly from Zeplin.",
   {
     layerSourceId: z.string()
       .describe(
-        "The source ID of the layer that you want the assets of.",
+        "The unique source ID of the layer for which the asset should be downloaded. This ID is obtained from the `layers` array in the response of `get_screen` or `get_component` calls, from a `sourceId` or similar field associated with a specific layer that has exportable assets",
       ),
     localPath: z.string()
       .describe(
@@ -297,7 +297,7 @@ server.tool(
       ),
     assetType: z.enum(["svg", "png", "pdf", "jpg"])
       .describe(
-        "The type of asset you want to download. This can be either 'svg', 'jpg', 'png' or 'pdf'. Check which content type is preferred in the codebase context and set this accordingly.",
+        "The desired format of the asset to download. Must be one of 'svg', 'png', 'jpg', or 'pdf'. Choose the format most suitable for the project's needs or as indicated by design specifications. If unsure, 'svg' is often preferred for vector graphics and 'png' for bitmaps.",
       ),
   },
   async ({ layerSourceId, localPath, assetType }) => {

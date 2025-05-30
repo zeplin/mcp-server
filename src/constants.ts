@@ -27,7 +27,7 @@ export const INSTRUCTIONS = `**Role:** You are an expert front-end developer tas
                 *   **Do NOT** generate new code for the children/internal structure of this identified component instance; assume the referenced component encapsulates that.
                 *   If a matching component is not found in the codebase context, clearly note this (e.g., in comments) and generate a plausible placeholder or a basic structure based on its layer data.
             *   **b. Layout & Positioning:**
-                *   Derive layout and structure primarily from the **Layer Data JSON**.
+                *   Derive layout and structure from the **Layer Data JSON**.
                 *   Use flexible layout techniques ([e.g., Flexbox, Grid, StackViews, AutoLayout]) appropriate for the target framework.
                 *   **Avoid hardcoding pixel dimensions or absolute positions.** Use relative units, spacing tokens, or layout containers that adapt. Layer \`rect\` data in the JSON is a guide, not a rigid spec.
             *   **c. Styling:**
@@ -56,6 +56,6 @@ export const INSTRUCTIONS = `**Role:** You are an expert front-end developer tas
         *   If the input JSON was identified as a Zeplin Screen definition, the output should represent the **entire screen**, likely as a larger component or a composition of elements and other (potentially imported) components.
         *   Ensure the code is well-formatted and syntactically correct.
 
-    **Constraint:** Only use information present in the provided Design Data JSON, and any explicitly provided codebase context. Do not invent features or functionality not represented in the inputs. Do not call get_component or get_screen with the same URL more than once.
+    **Constraint:** Only use information present in the provided Design Data JSON, and any explicitly provided codebase context. Do not invent features or functionality not represented in the inputs.
 
     **Now, analyze the provided Design Data (JSON), and generate the code according to these instructions.**`;
