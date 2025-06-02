@@ -131,7 +131,7 @@ The quality and specificity of your prompts significantly impact the AI's abilit
 When you need to implement a small update or addition to an existing screen or component based on a new Zeplin design version.
 
 ```
-The latest design for the following screen includes a new addition: a Checkbox component has been added to the MenuItem component, here is the short url of the screen <zeplin short url of the screen, e.g., https://zpl.io/abc123X>.
+The latest design for the following screen includes a new addition: a Checkbox component has been added to the MenuItem component, here is the short url of the screen <zeplin short url of the screen, e.g., https://zpl.io/abc123X>. Focus on the MenuItem component.
 
 The Checkbox component can be found under the path/to/your/checkbox/component directory.
 The relevant screen file is located at path/to/your/screen/file.tsx.
@@ -169,3 +169,27 @@ Now, using the components you just implemented (and any other existing component
 * **Iterative approach:** Allows for review and correction at each step.
 * **Builds on previous work:** The AI can use the components it just created.
 * **Clear Zeplin references:** Ensures each piece is based on the correct design.
+
+
+
+### Strategies to deal with context window limitations
+
+When dealing with complex Zeplin screens or components with many variants and layers, the amount of design data fetched can sometimes be extensive. This can potentially exceed the context window limitations of the AI model you are using, leading to truncated information or less effective code generation. Here are several strategies to manage the amount of information sent to the model:
+
+1.  **Limit Screen Variants (`includeVariants: false`):**
+    *   **How it works:** When using the `get_screen` tool, the model can be instructed to fetch only the specific screen version linked in the URL, rather than all its variants (e.g., different states, sizes, themes). This is done by setting the `includeVariants` parameter to `false` during the tool call.
+    *   **When to use:** If your prompt is focused on a single specific version of a screen, or if the variants are not immediately relevant to the task at hand. This significantly reduces the amount of data related to variant properties and their respective layer structures.
+    *   **Example Prompt Hint:** "Implement the login form from this screen: `https://zpl.io/abc123X`. I only need the specific version linked, not all its variants."
+        *The AI agent, when calling `get_screen`, should then ideally use `includeVariants: false`.*
+
+2.  **Focus on Specific Layers/Components (`targetLayerName` or Targeted Prompts):**
+    *   **How it works (using `targetLayerName`):** The `get_screen` tool has a `targetLayerName` parameter. If the model can identify a specific layer name from your prompt (e.g., "the 'Submit Button'"), it can use this parameter. The server will then return data primarily for that layer and its children, rather than the entire screen's layer tree.
+    *   **How it works (Targeted Prompts):** Even without explicitly using `targetLayerName` in the tool call, very specific prompts can guide the model to internally prioritize or summarize information related to the mentioned element.
+    *   **When to use:** When your task involves a specific part of a larger screen, like a single button, an icon, or a text block.
+    *   **Example Prompt:** "Focus on the 'UserProfileHeader' component within this screen: `https://zpl.io/screenXYZ`. I need to implement its layout and text styles."
+        *If the AI uses `get_screen`, it could populate `targetLayerName: "UserProfileHeader"`.*
+
+3.  **Iterative, Component-First Implementation:**
+    *   **How it works:** As detailed in [Example Prompt 2: Complex Implementations (Component-First)](#example-prompt-2-complex-implementations-component-first), break down the implementation of a complex screen into smaller, component-sized tasks.
+    *   **When to use:** For any non-trivial screen. This approach naturally limits the scope of each `get_component` or `get_screen` call to a manageable size.
+    *   **Benefit:** Each request to the Zeplin MCP server will fetch a smaller, more focused dataset, making it easier to stay within context limits and allowing the model to concentrate on one piece at a time.
