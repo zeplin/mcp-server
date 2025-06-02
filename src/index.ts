@@ -311,6 +311,49 @@ server.tool(
   },
 );
 
+server.tool(
+  "get_design_tokens",
+  "Download design tokens for a project or styleguide",
+  {
+    resourceId: z.string()
+      .describe(
+        "The ID of the project or styleguide for which the design tokens should be downloaded.",
+      ),
+  },
+  async ({ resourceId }) => {
+    let projectDesignTokens = null;
+    let styleguideDesignTokens = null;
+    let projectError = null;
+    let styleguideError = null;
+
+    try {
+      projectDesignTokens = await fetchProjectDesignTokens(resourceId);
+    } catch (error) {
+      projectError = error;
+    }
+
+    try {
+      styleguideDesignTokens = await fetchStyleguideDesignTokens(resourceId);
+    } catch (error) {
+      styleguideError = error;
+    }
+
+    // If both failed, return an error
+    if (!projectDesignTokens && !styleguideDesignTokens) {
+      const errorMessage = `No design tokens found for project or styleguide with ID: ${resourceId}`;
+      if (projectError && styleguideError) {
+        return createErrorResponse(`${errorMessage}. Project error: ${projectError instanceof Error ? projectError.message : String(projectError)}. Styleguide error: ${styleguideError instanceof Error ? styleguideError.message : String(styleguideError)}`);
+      }
+      return createErrorResponse(errorMessage);
+    }
+
+    return createSuccessResponse({
+      projectDesignTokens,
+      styleguideDesignTokens,
+    }, INSTRUCTIONS);
+  },
+);
+
 // Start the server
 try {
   const transport = new StdioServerTransport();
