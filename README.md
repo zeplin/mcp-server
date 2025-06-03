@@ -1,8 +1,6 @@
 # Zeplin MCP Server for AI-Assisted UI Implementation
 
-This project implements a Model Context Protocol (MCP) server designed to assist developers in implementing UI screens and components directly from Zeplin designs. By providing Zeplin shortlinks (e.g., `https://zpl.io/...`) in your prompts to AI agents, this server fetches the necessary design specifications and asset details, enabling the models to generate corresponding code for your target framework.
-
-The primary goal is to streamline the developer workflow by bridging the gap between design specifications in Zeplin and actual code implementation.
+This project is a Model Context Protocol server designed to assist developers in implementing UI screens and components directly from Zeplin designs. By providing Zeplin shortlinks (e.g., `https://zpl.io/...`) in your prompts to AI agents, this server fetches the necessary design specifications and asset details, enabling the models to generate corresponding code for your target framework.
 
 ## Table of Contents
 
@@ -29,36 +27,26 @@ The primary goal is to streamline the developer workflow by bridging the gap bet
 *   A Zeplin account.
 *   A Zeplin Personal Access Token (PAT). You can generate one from your Zeplin profile settings under "Developer" > "Personal access tokens". This token will need `read` permissions for the projects/styleguides you want to access.
 
-## Installation
+## Usage with MCP Clients (e.g., Cursor)
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/zeplin/zeplin-mcp.git
-    ```
+To integrate this server with an MCP client like Cursor, you need to configure the client to connect to this server. Add the following to Cursor's `settings.json` (accessible via `Cmd/Ctrl + Shift + P` -> "Configure Language Specific Settings..." -> "JSON") or a similar configuration file for MCP providers:
 
-2.  **Install dependencies:**
-    Using npm:
-    ```bash
-    npm install
-    ```
-
-3.  **Build the project:**
-    The TypeScript code needs to be compiled to JavaScript. Assuming you have a build script in your `package.json` (e.g., `tsc` or `esbuild`):
-    ```bash
-    npm run build
-    ```
-
-    This will typically create a `dist` directory with the compiled JavaScript files (e.g., `dist/index.js`).
-
-## Configuration
-
-Create a `.env` file in the root directory of the project with the following content:
-
-```bash
-ZEPLIN_ACCESS_TOKEN=your_zeplin_personal_access_token
+```jsonc
+// In your MCP client's configuration (e.g., Cursor's settings.json)
+{
+  "mcpServers": {
+    "zeplin-mcp": {
+      "command": "npx",
+      "args": [
+        "@zeplin/mcp-server@latest"
+      ],
+      "env": {
+        "ZEPLIN_ACCESS_TOKEN": "<YOUR_ZEPLIN_PERSONAL_ACCESS_TOKEN>" // Replace with your actual token
+      }
+    }
+  }
+}
 ```
-
-Replace `your_zeplin_personal_access_token` with your actual Zeplin Personal Access Token.
 
 ## Development
 
@@ -81,6 +69,14 @@ npm run lint:fix
 npm run inspect
 ```
 
+For debugging purposes if you want to run `npm run inspect` create a `.env` file in the root directory of the project with the following content:
+
+```bash
+ZEPLIN_ACCESS_TOKEN=your_zeplin_personal_access_token
+```
+
+Replace `your_zeplin_personal_access_token` with your actual Zeplin Personal Access Token.
+
 ### Code Style and Linting
 
 This project uses ESLint to enforce code quality and consistency. The configuration is in `eslint.config.js`. Key style guidelines include:
@@ -92,35 +88,6 @@ This project uses ESLint to enforce code quality and consistency. The configurat
 - Organized imports
 
 When contributing to this project, please ensure your code follows these guidelines by running `npm run lint:fix` before submitting changes.
-
-## Usage with MCP Clients (e.g., Cursor)
-
-To integrate this server with an MCP client like Cursor, you need to configure the client to connect to this server. Add the following to Cursor's `settings.json` (accessible via `Cmd/Ctrl + Shift + P` -> "Configure Language Specific Settings..." -> "JSON") or a similar configuration file for MCP providers:
-
-```jsonc
-// In your MCP client's configuration (e.g., Cursor's settings.json)
-{
-  // ... other configurations
-  "mcpServers": {
-    // ... other providers
-    "zeplin-mcp": {
-      "command": "node",
-      "args": [
-        "/path/to/your/zeplin-mcp/dist/index.js" // IMPORTANT: Update this path
-      ],
-      "env": {
-        "ZEPLIN_ACCESS_TOKEN": "<YOUR_ZEPLIN_PERSONAL_ACCESS_TOKEN>" // IMPORTANT: Replace with your actual token
-      }
-    }
-    // ...
-  }
-  // ...
-}
-```
-
-**Important:**
-*   Replace `"/path/to/your/zeplin-mcp/dist/index.js"` with the **absolute path** to the compiled `index.js` file in your `zeplin-mcp` project directory.
-*   Replace `<YOUR_ZEPLIN_PERSONAL_ACCESS_TOKEN>` with your actual Zeplin PAT.
 
 ## Crafting Effective Prompts
 
@@ -169,8 +136,6 @@ Now, using the components you just implemented (and any other existing component
 * **Iterative approach:** Allows for review and correction at each step.
 * **Builds on previous work:** The AI can use the components it just created.
 * **Clear Zeplin references:** Ensures each piece is based on the correct design.
-
-
 
 ### Strategies to deal with context window limitations
 
