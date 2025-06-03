@@ -1,16 +1,16 @@
 {
-  "name": "zeplin-mcp-server",
+  "name": "@zeplin/mcp-server",
   "version": "0.1.0",
   "description": "An MCP server for Zeplin for AI assisted UI development.",
   "author": "Zeplin",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zeplin/zeplin-mcp.git"
+    "url": "https://github.com/zeplin/mcp-server.git"
   },
-  "homepage": "https://github.com/zeplin/zeplin-mcp",
+  "homepage": "https://github.com/zeplin/mcp-server#readme",
   "bugs": {
-    "url": "https://github.com/zeplin/zeplin-mcp/issues"
+    "url": "https://github.com/zeplin/mcp-server/issues"
   },
   "keywords": [
     "zeplin",
