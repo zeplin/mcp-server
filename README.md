@@ -27,9 +27,15 @@ This project is a Model Context Protocol server designed to assist developers in
 *   A Zeplin account.
 *   A Zeplin Personal Access Token (PAT). You can generate one from your Zeplin profile settings under "Developer" > "Personal access tokens". This token will need `read` permissions for the projects/styleguides you want to access.
 
-## Usage with MCP Clients (e.g., Cursor)
+## Installation
 
-To integrate this server with an MCP client like Cursor, you need to configure the client to connect to this server. Add the following to Cursor's `settings.json` (accessible via `Cmd/Ctrl + Shift + P` -> "Configure Language Specific Settings..." -> "JSON") or a similar configuration file for MCP providers:
+### One click cursor install
+
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=zeplin-mcp&config=eyJjb21tYW5kIjoibnB4IC15IEB6ZXBsaW4vbWNwLXNlcnZlckBsYXRlc3QiLCJlbnYiOnsiWkVQTElOX0FDQ0VTU19UT0tFTiI6IiJ9fQ%3D%3D)
+
+### Manual installation
+
+To integrate this server with an MCP client, you need to configure the client to connect to this server. Add the following to Cursor's `settings.json` (accessible via `Cmd/Ctrl + Shift + P` -> "Configure Language Specific Settings..." -> "JSON") or a similar configuration file for MCP providers:
 
 ```jsonc
 // In your MCP client's configuration (e.g., Cursor's settings.json)
