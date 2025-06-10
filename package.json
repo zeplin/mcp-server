@@ -1,7 +1,7 @@
 {
   "name": "@zeplin/mcp-server",
   "version": "0.1.0",
-  "description": "An MCP server for Zeplin for AI assisted UI development.",
+  "description": "Zeplin’s official MCP server for AI-assisted UI development",
   "author": "Zeplin",
   "license": "MIT",
   "repository": {

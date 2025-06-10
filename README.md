@@ -1,10 +1,13 @@
-# Zeplin MCP Server for AI-Assisted UI Implementation
+# Zeplin MCP server: AI-assisted UI development
 
-This project is a Model Context Protocol server designed to assist developers in implementing UI screens and components directly from Zeplin designs. By providing Zeplin shortlinks (e.g., `https://zpl.io/...`) in your prompts to AI agents, this server fetches the necessary design specifications and asset details, enabling the models to generate corresponding code for your target framework.
+Connect AI agents like Cursor, Windsurf, and VS Code (w/ Copilot) to Zeplin. Using the MCP server, AI agents can tap into:
 
-## Table of Contents
+- **Component and screen specs:** Detailed specs and assets for both components and entire screens — helping agents generate UI code that closely matches the designs.
+- **Documentation:** Annotations added to screens that provide extra context, like how things should behave or tips for implementation — letting the agent go beyond static visuals and build real interactions.
+- **Design tokens:** Colors, typography, spacing, and other design variables used across the project, so your agent can reuse existing tokens where possible.
 
-- [Features](#features)
+## Table of contents
+
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Configuration](#configuration)
@@ -14,38 +17,36 @@ This project is a Model Context Protocol server designed to assist developers in
   - [Example Prompt 1: Minor Changes/Additions](#example-prompt-1-minor-changesadditions)
   - [Example Prompt 2: Complex Implementations (Component-First)](#example-prompt-2-complex-implementations-component-first)
 
-## Features
-
-*   **Seamless Zeplin Integration**: Fetch detailed design data for components and screens using simple Zeplin URLs (including `zpl.io` shortlinks).
-*   **Code Generation Ready**: Provides AI models with structured data for conciseness and relevance.
-*   **Asset Handling**: Automatically identifies and provides information for assets within designs. AI agents can then decide to download these assets (SVG, PNG, PDF, JPG) as needed for implementation.
-*   **Targeted Implementation**: Facilitates implementation of entire screens or individual components, including their variants, layers, and annotations, directly from Zeplin specifications.
-
 ## Prerequisites
 
-*   [Node.js](https://nodejs.org/) (v20.x or later recommended)
-*   A Zeplin account.
-*   A Zeplin Personal Access Token (PAT). You can generate one from your Zeplin profile settings under "Developer" > "Personal access tokens". This token will need `read` permissions for the projects/styleguides you want to access.
+- [Node.js](https://nodejs.org/) (v20 or later)
+- A Zeplin account.
+- A Zeplin personal access token. You can generate one from your Zeplin profile, under "Developer" > "Personal access tokens".
 
 ## Installation
 
-### One click cursor install
+### Cursor one-click installation
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=zeplin-mcp&config=eyJjb21tYW5kIjoibnB4IC15IEB6ZXBsaW4vbWNwLXNlcnZlckBsYXRlc3QiLCJlbnYiOnsiWkVQTElOX0FDQ0VTU19UT0tFTiI6IiJ9fQ%3D%3D)
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=zeplin&config=eyJjb21tYW5kIjoibnB4IC15IEB6ZXBsaW4vbWNwLXNlcnZlckBsYXRlc3QiLCJlbnYiOnsiWkVQTElOX0FDQ0VTU19UT0tFTiI6IiJ9fQ%3D%3D)
 
 ### Manual installation
 
-To integrate this server with an MCP client, you need to configure the client to connect to this server. Add the following to Cursor's `settings.json` (accessible via `Cmd/Ctrl + Shift + P` -> "Configure Language Specific Settings..." -> "JSON") or a similar configuration file for MCP providers:
+To start using the MCP server, you first need to configure your client (e.g. Cursor, VS Code, Windsurf, Claude Code). Most clients have an option to add a new MCP server. When prompted, enter the following command:
+
+```bash
+npx @zeplin/mcp-server@latest
+```
+
+In addition, you also need to provide your Zeplin access token using the `ZEPLIN_ACCESS_TOKEN` environment variable.
+
+For example, if you’re using Cursor, here’s how your MCP settings should look like:
 
 ```jsonc
-// In your MCP client's configuration (e.g., Cursor's settings.json)
 {
   "mcpServers": {
-    "zeplin-mcp": {
+    "zeplin": {
       "command": "npx",
-      "args": [
-        "@zeplin/mcp-server@latest"
-      ],
+      "args": ["@zeplin/mcp-server@latest"],
       "env": {
         "ZEPLIN_ACCESS_TOKEN": "<YOUR_ZEPLIN_PERSONAL_ACCESS_TOKEN>" // Replace with your actual token
       }
@@ -56,7 +57,7 @@ To integrate this server with an MCP client, you need to configure the client to
 
 ## Development
 
-This project includes several npm scripts to help you with development:
+The project includes several npm scripts to help with development:
 
 ```bash
 # Run TypeScript compiler in watch mode for development
@@ -75,15 +76,13 @@ npm run lint:fix
 npm run inspect
 ```
 
-For debugging purposes if you want to run `npm run inspect` create a `.env` file in the root directory of the project with the following content:
+To run `npm run inspect`, create an `.env` file first in the root directory:
 
 ```bash
-ZEPLIN_ACCESS_TOKEN=your_zeplin_personal_access_token
+ZEPLIN_ACCESS_TOKEN=<YOUR_ZEPLIN_PERSONAL_ACCESS_TOKEN>
 ```
 
-Replace `your_zeplin_personal_access_token` with your actual Zeplin Personal Access Token.
-
-### Code Style and Linting
+### Code style and linting
 
 This project uses ESLint to enforce code quality and consistency. The configuration is in `eslint.config.js`. Key style guidelines include:
 
@@ -95,11 +94,11 @@ This project uses ESLint to enforce code quality and consistency. The configurat
 
 When contributing to this project, please ensure your code follows these guidelines by running `npm run lint:fix` before submitting changes.
 
-## Crafting Effective Prompts
+## Crafting effective prompts
 
-The quality and specificity of your prompts significantly impact the AI's ability to generate accurate and useful code. These are not mandatory but will increase the output quality. Here are some examples to guide you:
+The quality and specificity of your prompts significantly impact the AI’s ability to generate accurate and useful code. These are not mandatory but will definitely increase the output quality.
 
-### Example Prompt 1: Minor Changes/Additions
+### Example prompt 1: Minor changes/additions
 
 When you need to implement a small update or addition to an existing screen or component based on a new Zeplin design version.
 
@@ -112,15 +111,16 @@ The MenuItem component, which needs to be modified, is located at path/to/your/m
 Please implement this new addition.
 ```
 
-**Why this is effective:**
-*   **Contextualizes the change:** Clearly states what's new.
-*   **Provides the Zeplin link:** Allows the MCP server to fetch the latest design data.
-*   **Gives file paths:** Helps the AI locate existing code to modify.
-*   **Specifies components involved:** Narrows down the scope of work.
+Why this is effective:
 
-### Example Prompt 2: Complex Implementations (Component-First)
+- **Contextualizes the change:** Clearly states what’s new.
+- **Provides the Zeplin link:** Allows the MCP server to fetch the latest design data.
+- **Gives file paths:** Helps the AI locate existing code to modify.
+- **Specifies components involved:** Narrows down the scope of work.
 
-For implementing larger screens or features, it's often best to build individual components first and then assemble them.
+### Example prompt 2: Larger designs (Component-first)
+
+For implementing larger screens or features, it’s often best to build individual components first and then assemble them.
 
 ```
 Implement this component: <zeplin short url of the first component, e.g., https://zpl.io/def456Y>. Use Zeplin for design specifications.
@@ -136,31 +136,33 @@ Implement this other component: <zeplin short url of the second component, e.g.,
 Now, using the components you just implemented (and any other existing components), implement the following screen: <zeplin short url of the screen, e.g., https://zpl.io/jkl012A>. Use Zeplin for the screen layout and any direct elements.
 ```
 
-**Why this is effective:**
+Why this is effective:
 
-* **Breaks down complexity:** Tackles smaller, manageable pieces first.
-* **Iterative approach:** Allows for review and correction at each step.
-* **Builds on previous work:** The AI can use the components it just created.
-* **Clear Zeplin references:** Ensures each piece is based on the correct design.
+- **Breaks down complexity:** Tackles smaller, manageable pieces first.
+- **Iterative approach:** Allows for review and correction at each step.
+- **Builds on previous work:** The AI can use the components it just created.
+- **Clear Zeplin references:** Ensures each piece is based on the correct design.
 
 ### Strategies to deal with context window limitations
 
 When dealing with complex Zeplin screens or components with many variants and layers, the amount of design data fetched can sometimes be extensive. This can potentially exceed the context window limitations of the AI model you are using, leading to truncated information or less effective code generation. Here are several strategies to manage the amount of information sent to the model:
 
-1.  **Limit Screen Variants (`includeVariants: false`):**
-    *   **How it works:** When using the `get_screen` tool, the model can be instructed to fetch only the specific screen version linked in the URL, rather than all its variants (e.g., different states, sizes, themes). This is done by setting the `includeVariants` parameter to `false` during the tool call.
-    *   **When to use:** If your prompt is focused on a single specific version of a screen, or if the variants are not immediately relevant to the task at hand. This significantly reduces the amount of data related to variant properties and their respective layer structures.
-    *   **Example Prompt Hint:** "Implement the login form from this screen: `https://zpl.io/abc123X`. I only need the specific version linked, not all its variants."
-        *The AI agent, when calling `get_screen`, should then ideally use `includeVariants: false`.*
+1.  **Limit screen variants (`includeVariants: false`):**
 
-2.  **Focus on Specific Layers/Components (`targetLayerName` or Targeted Prompts):**
-    *   **How it works (using `targetLayerName`):** The `get_screen` tool has a `targetLayerName` parameter. If the model can identify a specific layer name from your prompt (e.g., "the 'Submit Button'"), it can use this parameter. The server will then return data primarily for that layer and its children, rather than the entire screen's layer tree.
-    *   **How it works (Targeted Prompts):** Even without explicitly using `targetLayerName` in the tool call, very specific prompts can guide the model to internally prioritize or summarize information related to the mentioned element.
-    *   **When to use:** When your task involves a specific part of a larger screen, like a single button, an icon, or a text block.
-    *   **Example Prompt:** "Focus on the 'UserProfileHeader' component within this screen: `https://zpl.io/screenXYZ`. I need to implement its layout and text styles."
-        *If the AI uses `get_screen`, it could populate `targetLayerName: "UserProfileHeader"`.*
+    - **How it works:** When using the `get_screen` tool, the model can be instructed to fetch only the specific screen version linked in the URL, rather than all its variants (e.g., different states, sizes, themes). This is done by setting the `includeVariants` parameter to `false` during the tool call.
+    - **When to use:** If your prompt is focused on a single specific version of a screen, or if the variants are not immediately relevant to the task at hand. This significantly reduces the amount of data related to variant properties and their respective layer structures.
+    - **Example prompt:** “Implement the login form from this screen: `https://zpl.io/abc123X`. I only need the specific version linked, not all its variants.”
+      _The AI agent, when calling `get_screen`, should then ideally use `includeVariants: false`._
 
-3.  **Iterative, Component-First Implementation:**
-    *   **How it works:** As detailed in [Example Prompt 2: Complex Implementations (Component-First)](#example-prompt-2-complex-implementations-component-first), break down the implementation of a complex screen into smaller, component-sized tasks.
-    *   **When to use:** For any non-trivial screen. This approach naturally limits the scope of each `get_component` or `get_screen` call to a manageable size.
-    *   **Benefit:** Each request to the Zeplin MCP server will fetch a smaller, more focused dataset, making it easier to stay within context limits and allowing the model to concentrate on one piece at a time.
+2.  **Focus on specific layers/components (`targetLayerName` or targeted prompts):**
+
+    - **How it works (using `targetLayerName`):** The `get_screen` tool has a `targetLayerName` parameter. If the model can identify a specific layer name from your prompt (e.g., "the 'Submit Button'"), it can use this parameter. The server will then return data primarily for that layer and its children, rather than the entire screen's layer tree.
+    - **How it works (targeted prompts):** Even without explicitly using `targetLayerName` in the tool call, very specific prompts can guide the model to internally prioritize or summarize information related to the mentioned element.
+    - **When to use:** When your task involves a specific part of a larger screen, like a single button, an icon, or a text block.
+    - **Example prompt:** “Focus on the 'UserProfileHeader' component within this screen: `https://zpl.io/screenXYZ`. I need to implement its layout and text styles.”
+      _If the AI uses `get_screen`, it could populate `targetLayerName: "UserProfileHeader"`._
+
+3.  **Iterative, component-first implementation:**
+    - **How it works:** As detailed in [Example prompt 2: Larger designs (Component-first)](#example-prompt-2-larger-designs-component-first), break down the implementation of a complex screen into smaller, component-sized tasks.
+    - **When to use:** For any non-trivial screen. This approach naturally limits the scope of each `get_component` or `get_screen` call to a manageable size.
+    - **Benefit:** Each request to the Zeplin MCP server will fetch a smaller, more focused dataset, making it easier to stay within context limits and allowing the model to concentrate on one piece at a time.
