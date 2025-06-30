@@ -64,14 +64,20 @@ export async function getScreenData(
       );
       const variantGroup = variantGroupResponse.data;
 
-      name = variantGroup.name;
-      screenIds = variantGroup.variants
-        .map((variant) => variant.screenId)
-        .filter((id): id is string => id !== undefined);
+      if (variantGroup) {
+        name = variantGroup.name;
+        screenIds = variantGroup.variants
+          .map((variant) => variant.screenId)
+          .filter((id): id is string => id !== undefined);
 
-      variantNames = variantGroup.variants
-        .map((variant) => variant.value)
-        .filter((name): name is string => name !== undefined);
+        variantNames = variantGroup.variants
+          .map((variant) => variant.value)
+          .filter((name): name is string => name !== undefined);
+      } else {
+        name = screen.name || "Unnamed Screen";
+        screenIds = [screenId];
+        variantNames = [screen.name || "Unnamed Screen"];
+      }
     } else {
       name = screen.name || "Unnamed Screen";
       screenIds = [screenId];
