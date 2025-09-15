@@ -27,7 +27,7 @@ Connect AI agents like Cursor, Windsurf, and VS Code (w/ Copilot) to Zeplin. Usi
 
 ### Cursor one-click installation
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=zeplin&config=eyJjb21tYW5kIjoibnB4IC15IEB6ZXBsaW4vbWNwLXNlcnZlckBsYXRlc3QiLCJlbnYiOnsiWkVQTElOX0FDQ0VTU19UT0tFTiI6IiJ9fQ%3D%3D)
+[Install MCP Server](cursor://anysphere.cursor-deeplink/mcp/install?name=zeplin&config=eyJjb21tYW5kIjoibnB4IC15IEB6ZXBsaW4vbWNwLXNlcnZlckBsYXRlc3QiLCJlbnYiOnsiWkVQTElOX0FDQ0VTU19UT0tFTiI6IiJ9fQ%3D%3D)
 
 ### Manual installation
 
