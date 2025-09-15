@@ -25,9 +25,16 @@ Connect AI agents like Cursor, Windsurf, and VS Code (w/ Copilot) to Zeplin. Usi
 
 ## Installation
 
-### Cursor one-click installation
+### One-click installation
 
-[Install MCP Server](cursor://anysphere.cursor-deeplink/mcp/install?name=zeplin&config=eyJjb21tYW5kIjoibnB4IC15IEB6ZXBsaW4vbWNwLXNlcnZlckBsYXRlc3QiLCJlbnYiOnsiWkVQTElOX0FDQ0VTU19UT0tFTiI6IiJ9fQ%3D%3D)
+**For Cursor users:**
+
+
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=zeplin&config=eyJ0aW1lb3V0Ijo2MDAsImNvbW1hbmQiOiJucHggLXkgQHplcGxpbi9tY3Atc2VydmVyQGxhdGVzdCIsImVudiI6eyJaRVBMSU5fQUNDRVNTX1RPS0VOIjoiWW91ciBaZXBsaW4gUGVyc29uYWwgQWNjZXNzIFRva2VuIn19)
+
+**For VS Code users:**
+
+[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=zeplin&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40zeplin%2Fmcp-server%40latest%22%5D%2C%22env%22%3A%7B%22ZEPLIN_ACCESS_TOKEN%22%3A%22%22%7D%7D)
 
 ### Manual installation
 
