@@ -74,7 +74,7 @@ export async function processScreenVersionsAndAnnotations(
       const screenVersion = screenVersionResponses[index];
 
       return annotations.map((annotation) => ({
-        type: annotation.type.name,
+        type: annotation.type?.name ?? "none",
         text: annotation.content,
         position: {
           x: annotation.position.x * (screenVersion.data.width || 0),
