@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.2",
-    "@zeplin/sdk": "^1.25.0",
+    "@zeplin/sdk": "^1.40.0",
     "node-fetch": "^3.3.2",
     "zod": "^3.24.3"
   },
